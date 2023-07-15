@@ -1,0 +1,84 @@
+const express = require("express");
+
+const mongoose = require("mongoose");
+
+const router = express.Router();
+
+const Item = require("../models/Item.model");
+
+//CREATE   (C)
+router.post("/items", function (req, res, next) {
+  // req.body{ name: "Maillot basket",ville: "Paris"...}
+  Item.create({
+    name: req.body.name,
+    ville: req.body.ville,
+    description: req.body.description,
+    images: req.body.images,
+  })
+    .then(function (itemFromDB) {
+      res.status(201).json(itemFromDB);
+    })
+    .catch((err) => next(err));
+});
+
+//LISTING   (R)
+router.get("/items", function (req, res, next) {
+  Item.find()
+    .then(function (allItems) {
+      res.status(200).json(allItems);
+    })
+    .catch((err) => next(err));
+});
+
+//SHOW one object  (R)
+router.get("/items/:id", function (req, res, next) {
+  //const { projectId } = req.params; "ca ne marche pas" 🧩debog: console.log(projectId)🧩
+
+  const itemId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    res.status(400).json({ message: "Specified id is not valid" });
+    return;
+  }
+
+  console.log("itemId ===>", itemId);
+
+  Item.findById(itemId)
+    .then(function (itemFromDB) {
+      console.log("itemFromDB ===>", itemFromDB);
+      res.status(200).json(itemFromDB);
+    })
+    .catch((err) => next(err));
+});
+
+// UPDATE   (U)
+router.put("/items/:id", (req, res, next) => {
+  const itemId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    res.status(400).json({ message: "Specified id is not valid" });
+    return;
+  }
+
+  Item.findByIdAndUpdate(itemId, req.body, { new: true })
+    .then((updatedItem) => res.json(updatedItem))
+    .catch((error) => res.json(error));
+});
+
+//DELETE   ()
+router.delete("/items/:id", function (req, res, next) {
+  const itemId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    res.status(400).json({ message: "Specified id is not valid" });
+    return;
+  }
+
+  Item.findByIdAndRemove(itemId)
+    .then(function () {
+      res.status(204).json({ message: `l'objet (id:${itemId}) is delete ✅` });
+    })
+    .catch((err) => next(err));
+});
+
+module.exports = router;
