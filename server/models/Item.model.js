@@ -2,9 +2,8 @@ const { Schema, model } = require("mongoose");
 
 const itemSchema = new Schema(
   {
-    user: {
-      type: String,
-    },
+    user: { type: Schema.Types.ObjectId, ref: "User" }, // referencing vers un _id de la collection Users
+
     name: {
       type: String,
       required: [true, "Name is required."],
@@ -27,7 +26,7 @@ const itemSchema = new Schema(
       //required: [true, "Images are required."],
     },
     grade: { type: Number },
-    proposedItems: { type: [String] },
+    proposedItems: { type: [] }, // referencing vers le meme model
     switched: { type: Boolean },
   },
   {

@@ -4,16 +4,17 @@ const mongoose = require("mongoose");
 
 const router = express.Router();
 
-//middleware JWT
+//middleware JWT🛡️
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 const Item = require("../models/Item.model");
 
-//CREATE   (C)
+//CREATE   (C) 🛡️
 router.post("/items", isAuthenticated, function (req, res, next) {
+  console.log("req.payload====>", req.payload);
   // req.body{ name: "Maillot basket",ville: "Paris"...}
   Item.create({
-    user: req.body.user,
+    user: req.payload._id, // id du user connecte
     name: req.body.name,
     ville: req.body.ville,
     description: req.body.description,
@@ -55,7 +56,7 @@ router.get("/items/:id", function (req, res, next) {
     .catch((err) => next(err));
 });
 
-// UPDATE   (U)
+// UPDATE   (U) 🛡️
 router.patch("/items/:id", isAuthenticated, (req, res, next) => {
   const itemId = req.params.id;
 
@@ -66,10 +67,18 @@ router.patch("/items/:id", isAuthenticated, (req, res, next) => {
 
   Item.findByIdAndUpdate(itemId, req.body, { new: true })
     .then((updatedItem) => res.json(updatedItem))
-    .catch((error) => res.json(error));
+    .catch((error) => next(err)); // res.status(412).json({message: "doh!"})
 });
 
-//DELETE   (D)
+//PROPOSE
+router.put("items/:id/propose", isAuthenticated, (req, res, next) => {
+  const itemId = req.params.id;
+  Item.findByIdAndUpdate(itemId, req.body.proposedItems, { new: true })
+    .then((updatedItem) => res.json(updatedItem))
+    .catch((error) => next(err));
+});
+
+//DELETE   (D)🛡️
 router.delete("/items/:id", isAuthenticated, function (req, res, next) {
   const itemId = req.params.id;
 

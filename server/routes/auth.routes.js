@@ -11,7 +11,8 @@ const User = require("../models/User.model");
 // Require necessary (isAuthenticated) middleware in order to control access to specific routes
 const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 
-/* POST /api/users  SIGNUP- Creates a new user in the database */
+/* POST /api/users  
+SIGNUP- Creates a new user in the database */
 router.post("/users", (req, res, next) => {
   const { email, password, name } = req.body;
   console.log("REQ.BODY ===>", req.body);
@@ -74,7 +75,8 @@ router.post("/users", (req, res, next) => {
     });
 });
 
-/* POST  /api/login - Verifies email and password and returns a JWT*/
+/* POST  /api/login     
+LOGIN Verifies email and password and returns a JWT*/
 router.post("/sessions", (req, res, next) => {
   const { email, password } = req.body;
 
@@ -118,10 +120,12 @@ router.post("/sessions", (req, res, next) => {
     .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
 });
 
-/* GET  /api/verify  -  Used to verify JWT stored on the client*/
+/* GET  /api/verify 🛡️   
+Used to verify JWT stored on the client
+utilise le middlewear isAuthenticated pour renvoyer les infos dans la payload
+*/
 router.get("/verify", isAuthenticated, (req, res, next) => {
   // If JWT token is valid the payload gets decoded by the
-  // isAuthenticated middleware and is made available on `req.payload`
   console.log(`req.payload`, req.payload);
 
   // Send back the token payload object containing the user data
