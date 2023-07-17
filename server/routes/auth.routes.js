@@ -1,39 +1,35 @@
 const express = require("express");
 const router = express.Router();
 
-// ℹ️ Handles password encryption
 const bcrypt = require("bcrypt");
+const saltRounds = 10;
 
-// ℹ️ Handles password encryption
 const jwt = require("jsonwebtoken");
 
-// Require the User model in order to interact with the database
 const User = require("../models/User.model");
 
 // Require necessary (isAuthenticated) middleware in order to control access to specific routes
 const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 
-// How many rounds should bcrypt run the salt (default - 10 rounds)
-const saltRounds = 10;
-
-// POST /auth/signup  - Creates a new user in the database
+/* POST /api/users  SIGNUP- Creates a new user in the database */
 router.post("/users", (req, res, next) => {
   const { email, password, name } = req.body;
+  console.log("REQ.BODY ===>", req.body);
 
-  // Check if email or password or name are provided as empty strings
+  // Si champs vide
   if (email === "" || password === "" || name === "") {
     res.status(400).json({ message: "Provide email, password and name" });
     return;
   }
 
-  // This regular expression check that the email is of a valid format
+  // REGEX email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   if (!emailRegex.test(email)) {
     res.status(400).json({ message: "Provide a valid email address." });
     return;
   }
 
-  // This regular expression checks password for special characters and minimum length
+  // REGEX password
   const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
   if (!passwordRegex.test(password)) {
     res.status(400).json({
@@ -61,6 +57,7 @@ router.post("/users", (req, res, next) => {
       return User.create({ email, password: hashedPassword, name });
     })
     .then((createdUser) => {
+      // CreatedUser ==> data que nous retourne  la promise User.create()
       // Deconstruct the newly created user object to omit the password
       // We should never expose passwords publicly
       const { email, name, _id } = createdUser;
@@ -71,14 +68,17 @@ router.post("/users", (req, res, next) => {
       // Send a json response containing the user object
       res.status(201).json({ user: user });
     })
-    .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
+    .catch((err) => {
+      console.log("err sign up: ", err);
+      res.status(500).json({ message: "error creation user" });
+    });
 });
 
-// POST  /auth/login - Verifies email and password and returns a JWT
+/* POST  /api/login - Verifies email and password and returns a JWT*/
 router.post("/sessions", (req, res, next) => {
   const { email, password } = req.body;
 
-  // Check if email or password are provided as empty string
+  // Si champs vide
   if (email === "" || password === "") {
     res.status(400).json({ message: "Provide email and password." });
     return;
@@ -93,7 +93,7 @@ router.post("/sessions", (req, res, next) => {
         return;
       }
 
-      // Compare the provided password with the one saved in the database
+      // Compare les 2mots de passe comparSync return TRUE (or FALSE)
       const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
 
       if (passwordCorrect) {
@@ -106,7 +106,7 @@ router.post("/sessions", (req, res, next) => {
         // Create a JSON Web Token and sign it
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
           algorithm: "HS256",
-          expiresIn: "6h",
+          expiresIn: "12h",
         });
 
         // Send the token as the response
@@ -118,7 +118,7 @@ router.post("/sessions", (req, res, next) => {
     .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
 });
 
-// GET  /auth/verify  -  Used to verify JWT stored on the client
+/* GET  /api/verify  -  Used to verify JWT stored on the client*/
 router.get("/verify", isAuthenticated, (req, res, next) => {
   // If JWT token is valid the payload gets decoded by the
   // isAuthenticated middleware and is made available on `req.payload`
@@ -127,5 +127,7 @@ router.get("/verify", isAuthenticated, (req, res, next) => {
   // Send back the token payload object containing the user data
   res.status(200).json(req.payload);
 });
+
+/*DELETE ?????*/
 
 module.exports = router;

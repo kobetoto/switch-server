@@ -4,12 +4,16 @@ const mongoose = require("mongoose");
 
 const router = express.Router();
 
+//middleware JWT
+const { isAuthenticated } = require("../middleware/jwt.middleware");
+
 const Item = require("../models/Item.model");
 
 //CREATE   (C)
-router.post("/items", function (req, res, next) {
+router.post("/items", isAuthenticated, function (req, res, next) {
   // req.body{ name: "Maillot basket",ville: "Paris"...}
   Item.create({
+    user: req.body.user,
     name: req.body.name,
     ville: req.body.ville,
     description: req.body.description,
@@ -52,7 +56,7 @@ router.get("/items/:id", function (req, res, next) {
 });
 
 // UPDATE   (U)
-router.put("/items/:id", (req, res, next) => {
+router.patch("/items/:id", isAuthenticated, (req, res, next) => {
   const itemId = req.params.id;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
@@ -65,8 +69,8 @@ router.put("/items/:id", (req, res, next) => {
     .catch((error) => res.json(error));
 });
 
-//DELETE   ()
-router.delete("/items/:id", function (req, res, next) {
+//DELETE   (D)
+router.delete("/items/:id", isAuthenticated, function (req, res, next) {
   const itemId = req.params.id;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
@@ -76,7 +80,9 @@ router.delete("/items/:id", function (req, res, next) {
 
   Item.findByIdAndRemove(itemId)
     .then(function () {
-      res.status(204).json({ message: `l'objet (id:${itemId}) is delete ✅` });
+      res
+        .status(204)
+        .json({ message: `l'objet (id:${itemId}) est supprimeé ✅` });
     })
     .catch((err) => next(err));
 });

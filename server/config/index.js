@@ -24,7 +24,7 @@ module.exports = (app) => {
   // controls a very specific header to pass headers from the frontend
   app.use(
     cors({
-      origin: [FRONTEND_URL],
+      origin: "*", //origin: [FRONTEND_URL] //origin: "*" ===> tout le monde autorisé à se connecté
     })
   );
 
