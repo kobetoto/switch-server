@@ -70,11 +70,17 @@ router.patch("/items/:id", isAuthenticated, (req, res, next) => {
     .catch((error) => next(err)); // res.status(412).json({message: "doh!"})
 });
 
-//PROPOSE
-router.put("items/:id/propose", isAuthenticated, (req, res, next) => {
+//PROPOSE    (U) 🛡️
+router.patch("/items/:id/propose", isAuthenticated, (req, res, next) => {
   const itemId = req.params.id;
-  Item.findByIdAndUpdate(itemId, req.body.proposedItems, { new: true })
-    .then((updatedItem) => res.json(updatedItem))
+  Item.findByIdAndUpdate(
+    itemId,
+    {
+      $push: { proposedItems: req.body.item }, // rajouter a quel proposedItem le maillot ou la montre
+    },
+    { new: true }
+  )
+    .then((updatedItem) => res.status(204).json(updatedItem))
     .catch((error) => next(err));
 });
 

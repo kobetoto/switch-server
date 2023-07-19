@@ -12,9 +12,12 @@ const { isAuthenticated } = require("../middleware/jwt.middleware");
 //CREATE
 router.post("/transactions", isAuthenticated, function (req, res, next) {
   // ⚠️
-  // - registered! OK
-  // - l'objet t'appartient
+  // - registered! OK ====> isAuthenticated
+  // - l'objet t'appartient   ???   ======> {req.payload(=user _id) === req.body.items.user(=user _id)}
 
+  if (req.payload._id === req.body.items.user) {
+    console.log();
+  }
   Transaction.create({
     items: req.body.items,
   })
