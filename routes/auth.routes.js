@@ -135,3 +135,23 @@ router.get("/verify", isAuthenticated, (req, res, next) => {
 /*DELETE ?????*/
 
 module.exports = router;
+
+// // PATCH  /api/user/:id   (U) 🛡️ + Owneur
+// router.patch("/user/:id", isAuthenticated, (req, res, next) => {
+//   const userId = req.params.id;
+
+//   if (!mongoose.Types.ObjectId.isValid(userId)) {
+//     res.status(400).json({ message: "Specified id is not valid" });
+//     return;
+//   }
+
+//   console.log("req.body ===>", req.body);
+
+//   if (req.payload._id === req.body.user) {
+//     Item.findByIdAndUpdate(userId, req.body, { new: true })
+//       .then((updatedUser) => res.json(updatedUser))
+//       .catch((error) => next(error)); // res.status(412).json({message: "doh!"})
+//   } else {
+//     res.status(401).json({ message: "Unautorized" });
+//   }
+// });

@@ -15,16 +15,17 @@ router.post("/transactions", isAuthenticated, function (req, res, next) {
   // - registered! OK ====> isAuthenticated
   // - l'objet t'appartient   ???   ======> {req.payload(=user _id) === req.body.items.user(=user _id)}
 
-  if (req.payload._id === req.body.items.user) {
-    console.log();
-  }
-  Transaction.create({
-    items: req.body.items,
-  })
-    .then(function (transactionFromDB) {
-      res.status(201).json(transactionFromDB);
+  if (req.payload._id === req.body.user) {
+    Transaction.create({
+      items: req.body.items,
     })
-    .catch((err) => next(err));
+      .then(function (transactionFromDB) {
+        res.status(201).json(transactionFromDB);
+      })
+      .catch((err) => next(err));
+  } else {
+    res.status(401).json({ message: "Unautorized" });
+  }
 });
 
 //READ

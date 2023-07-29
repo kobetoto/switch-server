@@ -29,6 +29,7 @@ router.post("/items", isAuthenticated, function (req, res, next) {
 //LISTING   (R)
 router.get("/items", function (req, res, next) {
   Item.find()
+    .populate("user")
     .then(function (allItems) {
       res.status(200).json(allItems);
     })
@@ -56,7 +57,7 @@ router.get("/items/:id", function (req, res, next) {
     .catch((err) => next(err));
 });
 
-// UPDATE   (U) 🛡️
+// UPDATE   (U) 🛡️ + Owneur
 router.patch("/items/:id", isAuthenticated, (req, res, next) => {
   const itemId = req.params.id;
 
@@ -65,9 +66,20 @@ router.patch("/items/:id", isAuthenticated, (req, res, next) => {
     return;
   }
 
-  Item.findByIdAndUpdate(itemId, req.body, { new: true })
-    .then((updatedItem) => res.json(updatedItem))
-    .catch((error) => next(err)); // res.status(412).json({message: "doh!"})
+  Item.findById(itemId).then((item) => {
+    console.log("req.payload._id===>", req.payload._id);
+    console.log("item.user===>", item.user);
+
+    if (req.payload._id === item.user.toString()) {
+      Item.findByIdAndUpdate(itemId, req.body, { new: true })
+        .then((updatedItem) => {
+          res.json(updatedItem);
+        })
+        .catch((error) => next(error)); // res.status(412).json({message: "doh!"})
+    } else {
+      res.status(401).json({ message: "Unautorized" });
+    }
+  });
 });
 
 //PROPOSE    (U) 🛡️
@@ -84,7 +96,7 @@ router.patch("/items/:id/propose", isAuthenticated, (req, res, next) => {
     .catch((error) => next(err));
 });
 
-//DELETE   (D)🛡️
+//DELETE   (D)🛡️ + Owneur
 router.delete("/items/:id", isAuthenticated, function (req, res, next) {
   const itemId = req.params.id;
 
@@ -93,13 +105,19 @@ router.delete("/items/:id", isAuthenticated, function (req, res, next) {
     return;
   }
 
-  Item.findByIdAndRemove(itemId)
-    .then(function () {
-      res
-        .status(204)
-        .json({ message: `l'objet (id:${itemId}) est supprimeé ✅` });
-    })
-    .catch((err) => next(err));
+  Item.findById(itemId).then((item) => {
+    if (req.payload._id === item.user.toString()) {
+      Item.findByIdAndRemove(itemId)
+        .then(function () {
+          res
+            .status(204)
+            .json({ message: `l'objet (id:${itemId}) est supprimeé ✅` });
+        })
+        .catch((err) => next(err));
+    } else {
+      res.status(401).json({ message: "Unautorized" });
+    }
+  });
 });
 
 module.exports = router;
