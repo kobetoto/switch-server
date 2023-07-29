@@ -2,10 +2,12 @@ const { Schema, model } = require("mongoose");
 
 const transactionSchema = new Schema(
   {
-    items: {
-      type: [{ type: Schema.Types.ObjectId, ref: "Item" }], // referencing
-      //required: [true, "items are required."],
-    },
+    items: [
+      {
+        type: { type: Schema.Types.ObjectId, ref: "Item" }, // referencing
+        //required: [true, "items are required."],
+      },
+    ],
   },
   {
     timestamps: true,

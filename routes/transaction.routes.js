@@ -10,10 +10,18 @@ const Transaction = require("../models/Transaction.model");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 //CREATE
+
+// POST /transactions
+// {
+//   user: "9876", // A ENLEVER
+//   items: ["1234", "2345"] // (1er = le mien, 2e = celui que j'accepte)
+// }
+
 router.post("/transactions", isAuthenticated, function (req, res, next) {
   // ⚠️
-  // - registered! OK ====> isAuthenticated
-  // - l'objet t'appartient   ???   ======> {req.payload(=user _id) === req.body.items.user(=user _id)}
+  // 0. findByIid l'item, "1234"
+  // 1. que le user connecte possede l'item "1234": que tu check que son .user EST le user connecte
+  // 2. que "2345" fait parti des objets proposes: .proposedItems
 
   if (req.payload._id === req.body.user) {
     Transaction.create({

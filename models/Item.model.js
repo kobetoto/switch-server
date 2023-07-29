@@ -26,7 +26,7 @@ const itemSchema = new Schema(
       //required: [true, "Images are required."],
     },
     grade: { type: Number },
-    proposedItems: { type: [] }, // referencing vers le meme model
+    proposedItems: [{ type: Schema.Types.ObjectId, ref: "Item" }], // referencing vers le meme model
     switched: { type: Boolean },
   },
   {
