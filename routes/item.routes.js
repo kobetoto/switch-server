@@ -18,7 +18,7 @@ router.post("/items", isAuthenticated, function (req, res, next) {
     name: req.body.name,
     ville: req.body.ville,
     description: req.body.description,
-    images: req.body.images,
+    image: req.body.image,
   })
     .then(function (itemFromDB) {
       res.status(201).json(itemFromDB);
