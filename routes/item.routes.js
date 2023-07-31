@@ -4,10 +4,12 @@ const mongoose = require("mongoose");
 
 const router = express.Router();
 
+const Item = require("../models/Item.model");
+
+const fileUploader = require("../config/cloudinary.config");
+
 //middleware JWT🛡️
 const { isAuthenticated } = require("../middleware/jwt.middleware");
-
-const Item = require("../models/Item.model");
 
 //CREATE   (C) 🛡️
 router.post("/items", isAuthenticated, function (req, res, next) {
@@ -18,10 +20,10 @@ router.post("/items", isAuthenticated, function (req, res, next) {
     name: req.body.name,
     ville: req.body.ville,
     description: req.body.description,
-    image: req.body.image,
+    imageUrl: req.body.imageUrl,
   })
-    .then(function (itemFromDB) {
-      res.status(201).json(itemFromDB);
+    .then(function (newItemFromDB) {
+      res.status(201).json(newItemFromDB);
     })
     .catch((err) => next(err));
 });
@@ -34,6 +36,21 @@ router.get("/items", function (req, res, next) {
       res.status(200).json(allItems);
     })
     .catch((err) => next(err));
+});
+
+// POST "/api/upload" => Route that receives the image, sends it to Cloudinary via the fileUploader and returns the image URL
+router.post("/upload", fileUploader.single("imageUrl"), (req, res, next) => {
+  // console.log("file is: ", req.file)
+
+  if (!req.file) {
+    next(new Error("No file uploaded!"));
+    return;
+  }
+
+  // Get the URL of the uploaded file and send it as a response.
+  // 'fileUrl' can be any name, just make sure you remember to use the same when accessing it on the frontend
+
+  res.json({ fileUrl: req.file.path });
 });
 
 //SHOW one object  (R)

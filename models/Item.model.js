@@ -21,10 +21,7 @@ const itemSchema = new Schema(
     description: {
       type: String,
     },
-    image: {
-      type: [String],
-      //required: [true, "Images are required."],
-    },
+    imageUrl: String,
     grade: { type: Number },
     proposedItems: [{ type: Schema.Types.ObjectId, ref: "Item" }], // referencing vers le meme model
     switched: { type: Boolean },

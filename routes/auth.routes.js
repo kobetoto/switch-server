@@ -8,12 +8,14 @@ const jwt = require("jsonwebtoken");
 
 const User = require("../models/User.model");
 
+const fileUploader = require("../config/cloudinary.config");
+
 // Require necessary (isAuthenticated) middleware in order to control access to specific routes
 const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 
 /* POST /api/users  
 SIGNUP- Creates a new user in the database */
-router.post("/users", (req, res, next) => {
+router.post("/users", fileUploader.single("imageUrl"), (req, res, next) => {
   const { email, password, name } = req.body;
   console.log("REQ.BODY ===>", req.body);
 
@@ -55,7 +57,12 @@ router.post("/users", (req, res, next) => {
 
       // Create the new user in the database
       // We return a pending promise, which allows us to chain another `then`
-      return User.create({ email, password: hashedPassword, name });
+      return User.create({
+        email,
+        password: hashedPassword,
+        name,
+        imageUrl: req.file.path,
+      });
     })
     .then((createdUser) => {
       // CreatedUser ==> data que nous retourne  la promise User.create()

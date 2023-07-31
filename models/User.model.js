@@ -28,7 +28,7 @@ const userSchema = new Schema(
       ],
     },
     description: { type: String },
-    image: { type: String },
+    imageUrl: String,
     note: { type: Number },
   },
   {
