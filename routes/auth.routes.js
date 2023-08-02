@@ -1,5 +1,8 @@
+const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
+
+const { Schema, model } = require("mongoose");
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -61,7 +64,6 @@ router.post("/users", fileUploader.single("imageUrl"), (req, res, next) => {
         email,
         password: hashedPassword,
         name,
-        imageUrl: req.file.path,
       });
     })
     .then((createdUser) => {
@@ -127,6 +129,40 @@ router.post("/sessions", (req, res, next) => {
     .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
 });
 
+// PATCH  /api/users/:id   (U) 🛡️ + Owneur
+router.patch("/users/:id", (req, res, next) => {
+  const userId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    res.status(400).json({ message: "Specified id is not valid" });
+    return;
+  }
+  User.findByIdAndUpdate(userId, req.body, { new: true })
+    .then((updatedUser) => res.json(updatedUser))
+    .catch((error) => next(error));
+});
+
+//SHOW one user (R)
+router.get("/users/:id", function (req, res, next) {
+  //const { projectId } = req.params; "ca ne marche pas" 🧩debog: console.log(projectId)🧩
+
+  const userId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    res.status(400).json({ message: "Specified id is not valid" });
+    return;
+  }
+
+  console.log("userId ===>", userId);
+
+  User.findById(userId)
+    .then(function (userFromDB) {
+      console.log("userFromDB ===>", userFromDB);
+      res.status(200).json(userFromDB);
+    })
+    .catch((err) => next(err));
+});
+
 /* GET  /api/verify 🛡️   
 Used to verify JWT stored on the client
 utilise le middlewear isAuthenticated pour renvoyer les infos dans la payload
@@ -134,7 +170,6 @@ utilise le middlewear isAuthenticated pour renvoyer les infos dans la payload
 router.get("/verify", isAuthenticated, (req, res, next) => {
   // If JWT token is valid the payload gets decoded by the
   console.log(`req.payload`, req.payload);
-
   // Send back the token payload object containing the user data
   res.status(200).json(req.payload);
 });
@@ -142,23 +177,3 @@ router.get("/verify", isAuthenticated, (req, res, next) => {
 /*DELETE ?????*/
 
 module.exports = router;
-
-// // PATCH  /api/user/:id   (U) 🛡️ + Owneur
-// router.patch("/user/:id", isAuthenticated, (req, res, next) => {
-//   const userId = req.params.id;
-
-//   if (!mongoose.Types.ObjectId.isValid(userId)) {
-//     res.status(400).json({ message: "Specified id is not valid" });
-//     return;
-//   }
-
-//   console.log("req.body ===>", req.body);
-
-//   if (req.payload._id === req.body.user) {
-//     Item.findByIdAndUpdate(userId, req.body, { new: true })
-//       .then((updatedUser) => res.json(updatedUser))
-//       .catch((error) => next(error)); // res.status(412).json({message: "doh!"})
-//   } else {
-//     res.status(401).json({ message: "Unautorized" });
-//   }
-// });
