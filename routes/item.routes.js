@@ -13,7 +13,7 @@ const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 //CREATE   (C) 🛡️
 router.post("/items", isAuthenticated, function (req, res, next) {
-  console.log("req.payload====>", req.payload);
+  console.log("req.body====>", req.body);
   // req.body{ name: "Maillot basket",ville: "Paris"...}
   Item.create({
     user: req.payload._id, // id du user connecte
@@ -40,8 +40,7 @@ router.get("/items", function (req, res, next) {
 
 // POST "/api/upload" => Route that receives the image, sends it to Cloudinary via the fileUploader and returns the image URL
 router.post("/upload", fileUploader.single("imageUrl"), (req, res, next) => {
-  // console.log("file is: ", req.file)
-
+  console.log("file is: ", req.file);
   if (!req.file) {
     next(new Error("No file uploaded!"));
     return;
@@ -49,7 +48,6 @@ router.post("/upload", fileUploader.single("imageUrl"), (req, res, next) => {
 
   // Get the URL of the uploaded file and send it as a response.
   // 'fileUrl' can be any name, just make sure you remember to use the same when accessing it on the frontend
-
   res.json({ fileUrl: req.file.path });
 });
 
