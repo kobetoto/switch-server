@@ -45,16 +45,15 @@ router.post("/users", fileUploader.single("imageUrl"), (req, res, next) => {
     return;
   }
 
-  // Check the users collection if a user with the same email already exists
+  // cherche un email identique en base
   User.findOne({ email })
     .then((foundUser) => {
-      // If the user with the same email already exists, send an error response
+      // si 2email identique ==> error response
       if (foundUser) {
         res.status(400).json({ message: "User already exists." });
         return;
       }
 
-      // If email is unique, proceed to hash the password
       const salt = bcrypt.genSaltSync(saltRounds);
       const hashedPassword = bcrypt.hashSync(password, salt);
 
@@ -68,11 +67,10 @@ router.post("/users", fileUploader.single("imageUrl"), (req, res, next) => {
     })
     .then((createdUser) => {
       // CreatedUser ==> data que nous retourne  la promise User.create()
-      // Deconstruct the newly created user object to omit the password
-      // We should never expose passwords publicly
+      // Destructuring de l'objet createdUser ressu
       const { email, name, _id } = createdUser;
 
-      // Create a new object that doesn't expose the password
+      // Creation d'un nouvel objet(without the password!)
       const user = { email, name, _id };
 
       // Send a json response containing the user object

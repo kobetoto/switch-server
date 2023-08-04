@@ -53,8 +53,6 @@ router.post("/upload", fileUploader.single("imageUrl"), (req, res, next) => {
 
 //SHOW one object  (R)
 router.get("/items/:id", function (req, res, next) {
-  //const { projectId } = req.params; "ca ne marche pas" 🧩debog: console.log(projectId)🧩
-
   const itemId = req.params.id;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
